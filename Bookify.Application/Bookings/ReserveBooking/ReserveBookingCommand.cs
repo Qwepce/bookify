@@ -2,7 +2,7 @@
 
 namespace Bookify.Application.Bookings.ReserveBooking;
 
-public record ReserverBookingCommand(
+public record ReserveBookingCommand(
     Guid ApartmentId,
     Guid UserId,
     DateOnly StartDate,
