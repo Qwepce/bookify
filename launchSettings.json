@@ -4,7 +4,7 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
-        "bookify.api": "StartWithoutDebugging"
+        "bookify.api": "StartDebugging"
       }
     }
   }
