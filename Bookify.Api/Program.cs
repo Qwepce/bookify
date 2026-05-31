@@ -1,3 +1,4 @@
+using Bookify.Api.Extensions;
 using Bookify.Application;
 using Bookify.Infrastructure;
 
@@ -15,17 +16,20 @@ var app = builder.Build();
 if ( app.Environment.IsDevelopment() )
 {
     app.MapOpenApi();
-
     app.UseSwagger();
-    app.UseSwaggerUI();
 
     app.UseSwaggerUI( options =>
     {
         options.SwaggerEndpoint( "/openapi/v1.json", "Bookify API V1" );
     } );
+
+    app.ApplyMigrations();
+    //app.ApplySeedData();
 }
 
 app.UseHttpsRedirection();
+
+app.UseCustomExceptionHandler();
 
 app.MapControllers();
 
