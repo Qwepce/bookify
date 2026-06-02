@@ -1,6 +1,8 @@
-﻿using Bookify.Application.Abstractions.Data;
+﻿using Bookify.Application.Abstractions.Authentication;
+using Bookify.Application.Abstractions.Data;
 using Bookify.Application.Abstractions.Messaging;
 using Bookify.Domain.Abstractions;
+using Bookify.Domain.Bookings;
 using Dapper;
 
 namespace Bookify.Application.Bookings.GetBooking;
@@ -8,10 +10,12 @@ namespace Bookify.Application.Bookings.GetBooking;
 internal sealed class GetBookingQueryHandler : IQueryHandler<GetBookingQuery, BookingResponse>
 {
     private readonly ISqlConnectionFactory _sqlConnectionFactory;
+    private readonly IUserContext _userContext;
 
-    public GetBookingQueryHandler( ISqlConnectionFactory connectionFactory )
+    public GetBookingQueryHandler( ISqlConnectionFactory connectionFactory, IUserContext userContext )
     {
         _sqlConnectionFactory = connectionFactory;
+        _userContext = userContext;
     }
 
     public async Task<Result<BookingResponse>> Handle( GetBookingQuery request, CancellationToken cancellationToken )
@@ -25,13 +29,13 @@ internal sealed class GetBookingQueryHandler : IQueryHandler<GetBookingQuery, Bo
                 user_id as UserId,
                 status as Status,
                 price_for_period_amount as PriceForPeriodAmount,
-                price_for_period_currency as PriceForPeriodCurrency,
+                price_for_period_currency as PriceForPeriodAmountCurrency,
                 cleaning_fee_amount as CleaningFeeAmount,
-                cleaning_fee_amount_currency as CleaningFeeAmountCurrency,
+                cleaning_fee_currency as CleaningFeeAmountCurrency,
                 amenities_up_charge_amount as AmenitiesUpChargeAmount,
-                amenities_up_charge_currency as AmenitiesUpChargeCurrency,
+                amenities_up_charge_currency as AmenitiesUpChargeAmountCurrency,
                 total_price_amount as TotalPriceAmount,
-                total_price_amount_currency as TotalPriceAmountCurrency,
+                total_price_currency as TotalPriceAmountCurrency,
                 duration_start as DurationStart,
                 duration_end as DurationEnd,
                 created_on_utc as CreatedOnUtc
@@ -45,6 +49,11 @@ internal sealed class GetBookingQueryHandler : IQueryHandler<GetBookingQuery, Bo
             {
                 request.BookingId
             } );
+
+        if ( booking is null || booking.UserId != _userContext.UserId )
+        {
+            return Result.Failure<BookingResponse>( BookingErrors.NotFound );
+        }
 
         return booking;
     }

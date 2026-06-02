@@ -8,48 +8,48 @@ namespace Bookify.Infrastructure.Migrations
     public partial class UpdateRoleConfigurationV2 : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
+        protected override void Up( MigrationBuilder migrationBuilder )
         {
             migrationBuilder.DropForeignKey(
                 name: "fk_permissions_role_role_id",
-                table: "permissions");
+                table: "permissions" );
 
             migrationBuilder.DropIndex(
                 name: "ix_permissions_role_id",
-                table: "permissions");
+                table: "permissions" );
 
             migrationBuilder.DropColumn(
                 name: "role_id",
-                table: "permissions");
+                table: "permissions" );
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
+        protected override void Down( MigrationBuilder migrationBuilder )
         {
             migrationBuilder.AddColumn<int>(
                 name: "role_id",
                 table: "permissions",
                 type: "integer",
-                nullable: true);
+                nullable: true );
 
             migrationBuilder.UpdateData(
                 table: "permissions",
                 keyColumn: "id",
                 keyValue: 1,
                 column: "role_id",
-                value: null);
+                value: null );
 
             migrationBuilder.CreateIndex(
                 name: "ix_permissions_role_id",
                 table: "permissions",
-                column: "role_id");
+                column: "role_id" );
 
             migrationBuilder.AddForeignKey(
                 name: "fk_permissions_role_role_id",
                 table: "permissions",
                 column: "role_id",
                 principalTable: "role",
-                principalColumn: "id");
+                principalColumn: "id" );
         }
     }
 }

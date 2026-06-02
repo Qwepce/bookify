@@ -13,21 +13,21 @@ public class BookingResponse
 
     public int Status { get; init; }
 
-    public decimal PriceAmount { get; init; }
+    public decimal PriceForPeriodAmount { get; init; }
 
-    public string PriceCurrency { get; init; }
+    public string PriceForPeriodAmountCurrency { get; init; } = string.Empty;
 
     public decimal CleaningFeeAmount { get; init; }
 
-    public string CleaningFeeAmountCurrency { get; init; }
+    public string CleaningFeeAmountCurrency { get; init; } = string.Empty;
 
     public decimal AmenitiesUpChargeAmount { get; init; }
 
-    public string AmenitiesUpChargeAmountCurrency { get; init; }
+    public string AmenitiesUpChargeAmountCurrency { get; init; } = string.Empty;
 
     public decimal TotalPriceAmount { get; init; }
 
-    public string TotalPriceCurrency { get; init; }
+    public string TotalPriceAmountCurrency { get; init; } = string.Empty;
 
     public DateOnly DurationStart { get; init; }
 

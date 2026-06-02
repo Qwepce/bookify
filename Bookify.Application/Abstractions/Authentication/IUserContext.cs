@@ -2,5 +2,6 @@
 
 public interface IUserContext
 {
+    public Guid UserId { get; }
     public string IdentityId { get; }
 }
