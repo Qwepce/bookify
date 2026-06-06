@@ -7,15 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bookify.Infrastructure.Authorization;
 
-internal sealed class CustomClaimsTransformation : IClaimsTransformation
+internal sealed class CustomClaimsTransformation( IServiceProvider serviceProvider ) : IClaimsTransformation
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public CustomClaimsTransformation( IServiceProvider serviceProvider )
-    {
-        _serviceProvider = serviceProvider;
-    }
-
     public async Task<ClaimsPrincipal> TransformAsync( ClaimsPrincipal principal )
     {
         if ( principal.HasClaim( claim => claim.Type == ClaimTypes.Role ) &&
@@ -24,7 +17,7 @@ internal sealed class CustomClaimsTransformation : IClaimsTransformation
             return principal;
         }
 
-        IServiceScope scope = _serviceProvider.CreateScope();
+        IServiceScope scope = serviceProvider.CreateScope();
 
         AuthorizationService authorizationService = scope.ServiceProvider.GetRequiredService<AuthorizationService>();
 

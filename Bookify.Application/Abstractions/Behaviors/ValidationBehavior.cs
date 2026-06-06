@@ -5,30 +5,23 @@ using MediatR;
 
 namespace Bookify.Application.Abstractions.Behaviors;
 
-internal class ValidationBehavior<TRequest, TResponse>
+internal class ValidationBehavior<TRequest, TResponse>( IEnumerable<IValidator<TRequest>> validators )
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IBaseCommand
 {
-    private readonly IEnumerable<IValidator<TRequest>> _validators;
-
-    public ValidationBehavior( IEnumerable<IValidator<TRequest>> validators )
-    {
-        _validators = validators;
-    }
-
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken )
     {
-        if ( !_validators.Any() )
+        if ( !validators.Any() )
         {
             return await next( cancellationToken );
         }
 
         ValidationContext<TRequest> context = new( request );
 
-        List<ValidationError> validationErrors = _validators
+        List<ValidationError> validationErrors = validators
             .Select( validator => validator.Validate( request ) )
             .Where( validationResult => validationResult.Errors.Any() )
             .SelectMany( validationResult => validationResult.Errors )
