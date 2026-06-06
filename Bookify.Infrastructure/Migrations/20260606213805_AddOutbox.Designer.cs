@@ -3,6 +3,7 @@ using System;
 using Bookify.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bookify.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260606213805_AddOutbox")]
+    partial class AddOutbox
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -301,13 +304,13 @@ namespace Bookify.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("error");
 
-                    b.Property<DateTime>("OccuredOnUtc")
+                    b.Property<DateTime>("OccuredOn")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("occured_on_utc");
+                        .HasColumnName("occured_on");
 
-                    b.Property<DateTime?>("ProcessedOnUtc")
+                    b.Property<DateTime?>("ProcessedOn")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("processed_on_utc");
+                        .HasColumnName("processed_on");
 
                     b.Property<string>("Type")
                         .IsRequired()

@@ -3,26 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Bookify.Api.Middleware;
 
-public class ExceptionHandlingMiddleware
+public class ExceptionHandlingMiddleware( RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger )
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
-    public ExceptionHandlingMiddleware( RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger )
-    {
-        _next = next;
-        _logger = logger;
-    }
-
     public async Task InvokeAsync( HttpContext context )
     {
         try
         {
-            await _next( context );
+            await next( context );
         }
         catch ( Exception exception )
         {
-            _logger.LogError( exception, "Exception occured: {Message}", exception.Message );
+            logger.LogError( exception, "Exception occured: {Message}", exception.Message );
 
             ExceptionDetails exceptionDetails = GetExceptionDetails( exception );
 
@@ -31,10 +22,12 @@ public class ExceptionHandlingMiddleware
                 Status = exceptionDetails.Status,
                 Type = exceptionDetails.Type,
                 Title = exceptionDetails.Title,
-                Detail = exceptionDetails.Details
+                Detail = exceptionDetails.Details,
+                Extensions =
+                {
+                    ["errors"] = exceptionDetails.Errors
+                }
             };
-
-            problemDetails.Extensions[ "errors" ] = exceptionDetails.Errors;
 
             context.Response.StatusCode = exceptionDetails.Status;
 

@@ -51,7 +51,7 @@ public sealed class Review : Entity
             return Result.Failure<Review>( ReviewErrors.NotEligable );
         }
 
-        var review = new Review(
+        Review review = new(
             Guid.CreateVersion7(),
             booking.ApartmentId,
             booking.Id,

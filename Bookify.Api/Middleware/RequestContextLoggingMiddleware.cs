@@ -3,22 +3,15 @@ using Serilog.Context;
 
 namespace Bookify.Api.Middleware;
 
-public class RequestContextLoggingMiddleware
+public class RequestContextLoggingMiddleware( RequestDelegate next )
 {
     private const string CorrelationIdHeaderName = "X-Correlation-Id";
-
-    private readonly RequestDelegate _next;
-
-    public RequestContextLoggingMiddleware( RequestDelegate next )
-    {
-        _next = next;
-    }
 
     public Task InvokeAsync( HttpContext httpContext )
     {
         using ( LogContext.PushProperty( "CorrelationId", GetCorrelationId( httpContext ) ) )
         {
-            return _next( httpContext );
+            return next( httpContext );
         }
     }
 

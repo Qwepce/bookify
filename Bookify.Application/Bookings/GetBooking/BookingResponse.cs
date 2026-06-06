@@ -30,5 +30,9 @@ public class BookingResponse
 
     public DateOnly DurationEnd { get; init; }
 
+    public DateTime CreatedOnUtc { get; init; }
+
     public DateTime ConfirmedOnUtc { get; init; }
+
+    public DateTime CompletedOnUtc { get; init; }
 }

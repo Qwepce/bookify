@@ -1,4 +1,5 @@
-﻿using Bookify.Application.Users.GetLoggedInUser;
+﻿using Asp.Versioning;
+using Bookify.Application.Users.GetLoggedInUser;
 using Bookify.Application.Users.LoginUser;
 using Bookify.Application.Users.RegisterUser;
 using Bookify.Domain.Abstractions;
@@ -10,23 +11,17 @@ using Microsoft.AspNetCore.Mvc;
 namespace Bookify.Api.Controllers.Users;
 
 [ApiController]
-[Route( "api/[controller]" )]
-public class UsersController : ControllerBase
+[ApiVersion( ApiVersions.V1 )]
+[Route( "api/v{version:apiVersion}/[controller]" )]
+public class UsersController( ISender sender ) : ControllerBase
 {
-    private readonly ISender _sender;
-
-    public UsersController( ISender sender )
-    {
-        _sender = sender;
-    }
-
     [HttpGet( "me" )]
     [HasPermission( Permissions.UsersRead )]
-    public async Task<IActionResult> GetLoggedInUser( CancellationToken cancellationToken )
+    public async Task<IActionResult> GetLoggedInUserV1( CancellationToken cancellationToken )
     {
         GetLoggedInUserQuery query = new();
 
-        Result<UserResponse> result = await _sender.Send( query, cancellationToken );
+        Result<UserResponse> result = await sender.Send( query, cancellationToken );
 
         return Ok( result.Value );
     }
@@ -43,7 +38,7 @@ public class UsersController : ControllerBase
             request.LastName,
             request.Password );
 
-        Result<Guid> result = await _sender.Send( command, cancellationToken );
+        Result<Guid> result = await sender.Send( command, cancellationToken );
         if ( result.IsFailure )
         {
             return BadRequest( result.Error );
@@ -62,7 +57,7 @@ public class UsersController : ControllerBase
             request.Email,
             request.Password );
 
-        Result<AccessTokenResponse> result = await _sender.Send( command, cancellationToken );
+        Result<AccessTokenResponse> result = await sender.Send( command, cancellationToken );
         if ( result.IsFailure )
         {
             return BadRequest( result.Error );

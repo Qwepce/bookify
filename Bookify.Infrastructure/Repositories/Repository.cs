@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Bookify.Infrastructure.Repositories;
 
-internal abstract class Repository<T>
+public abstract class Repository<T>
     where T : Entity
 {
     protected readonly ApplicationDbContext DbContext;

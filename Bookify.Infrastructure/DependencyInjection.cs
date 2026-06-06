@@ -1,4 +1,5 @@
-﻿using Bookify.Application.Abstractions.Authentication;
+﻿using Asp.Versioning;
+using Bookify.Application.Abstractions.Authentication;
 using Bookify.Application.Abstractions.Clock;
 using Bookify.Application.Abstractions.Data;
 using Bookify.Application.Abstractions.Email;
@@ -6,14 +7,17 @@ using Bookify.Application.Cache;
 using Bookify.Domain.Abstractions;
 using Bookify.Domain.Apartments;
 using Bookify.Domain.Bookings;
+using Bookify.Domain.Reviews;
 using Bookify.Domain.Users;
 using Bookify.Infrastructure.Authentication;
 using Bookify.Infrastructure.Authentication.Models;
 using Bookify.Infrastructure.Authorization;
 using Bookify.Infrastructure.Cache;
 using Bookify.Infrastructure.Clock;
+using Bookify.Infrastructure.Configurations;
 using Bookify.Infrastructure.Data;
 using Bookify.Infrastructure.Email;
+using Bookify.Infrastructure.Outbox;
 using Bookify.Infrastructure.Repositories;
 using Dapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -22,6 +26,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Quartz;
 using MicrosoftAuthentication = Microsoft.AspNetCore.Authentication;
 
 namespace Bookify.Infrastructure;
@@ -37,6 +42,9 @@ public static class DependencyInjection
         AddAuthentication( services, configuration );
         AddAuthorization( services );
         AddCaching( services, configuration );
+        AddHealthChecks( services, configuration );
+        AddApiVersioning( services );
+        AddBackgroundJobs( services, configuration );
 
         return services;
     }
@@ -84,6 +92,7 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IApartmentRepository, ApartmentRepository>();
         services.AddScoped<IBookingRepository, BookingRepository>();
+        services.AddScoped<IReviewRepository, ReviewRepository>();
 
         services.AddScoped<IUnitOfWork>( sp => sp.GetRequiredService<ApplicationDbContext>() );
 
@@ -111,5 +120,40 @@ public static class DependencyInjection
         services.AddStackExchangeRedisCache( options => options.Configuration = connectionString );
 
         services.AddSingleton<ICacheService, CacheService>();
+    }
+
+    private static void AddHealthChecks( IServiceCollection services, IConfiguration configuration )
+    {
+        services.AddHealthChecks()
+            .AddNpgSql( configuration.GetConnectionString( "Database" )! )
+            .AddRedis( configuration.GetConnectionString( "Cache" )! )
+            .AddUrlGroup( new Uri( configuration[ "Keycloak:HealthCheckUrl" ]! ), HttpMethod.Get, "keycloak" );
+    }
+
+    private static void AddApiVersioning( IServiceCollection services )
+    {
+        services.AddApiVersioning( options =>
+            {
+                options.DefaultApiVersion = new ApiVersion( 1 );
+                options.ReportApiVersions = true;
+                options.ApiVersionReader = new UrlSegmentApiVersionReader();
+            } )
+            .AddMvc()
+            .AddApiExplorer( options =>
+            {
+                options.GroupNameFormat = "'v'V";
+                options.SubstituteApiVersionInUrl = true;
+            } );
+    }
+
+    private static void AddBackgroundJobs( IServiceCollection services, IConfiguration configuration )
+    {
+        services.Configure<OutboxOptions>( configuration.GetSection( "Outbox" ) );
+
+        services.AddQuartz();
+
+        services.ConfigureOptions<ProcessOutboxMessagesJobSetup>();
+
+        services.AddQuartzHostedService( options => options.WaitForJobsToComplete = true );
     }
 }

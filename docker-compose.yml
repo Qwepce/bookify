@@ -38,13 +38,16 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       KEYCLOAK_IMPORT: /tmp/bookify-realm-export.json
-      KC_HOSTNAME: localhost
+      KC_HOSTNAME: bookify-idp
       KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_HTTP_MANAGEMENT_HEALTH_ENABLED: "false"
     volumes:
       - ./.containers/identity:/opt/keycloak/data
       - ./.files/bookify-realm-export.json:/tmp/bookify-realm-export.json:ro
     ports:
       - "18080:8080"
+      - "9000:9000"
     command: start-dev --import-realm
 
   bookify-seq:
