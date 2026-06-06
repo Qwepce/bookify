@@ -1,7 +1,4 @@
-﻿using Bookify.Domain.Bookings;
-using Bookify.Domain.Shared;
-
-namespace Bookify.Application.Bookings.GetBooking;
+﻿namespace Bookify.Application.Bookings.GetBooking;
 
 public class BookingResponse
 {
