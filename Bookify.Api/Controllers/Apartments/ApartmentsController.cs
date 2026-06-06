@@ -1,4 +1,5 @@
 ﻿using Bookify.Application.Apartments.SearchApartments;
+using Bookify.Domain.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,9 +23,9 @@ public class ApartmentsController : ControllerBase
         DateOnly startDate,
         DateOnly endDate )
     {
-        var query = new SearchApartmentsQuery( startDate, endDate );
+        SearchApartmentsQuery query = new( startDate, endDate );
 
-        var result = await _sender.Send( query );
+        Result<IReadOnlyList<ApartmentResponse>> result = await _sender.Send( query );
 
         return Ok( result.Value );
     }

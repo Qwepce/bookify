@@ -2,6 +2,7 @@
 using Bookify.Application.Abstractions.Clock;
 using Bookify.Application.Abstractions.Data;
 using Bookify.Application.Abstractions.Email;
+using Bookify.Application.Cache;
 using Bookify.Domain.Abstractions;
 using Bookify.Domain.Apartments;
 using Bookify.Domain.Bookings;
@@ -9,6 +10,7 @@ using Bookify.Domain.Users;
 using Bookify.Infrastructure.Authentication;
 using Bookify.Infrastructure.Authentication.Models;
 using Bookify.Infrastructure.Authorization;
+using Bookify.Infrastructure.Cache;
 using Bookify.Infrastructure.Clock;
 using Bookify.Infrastructure.Data;
 using Bookify.Infrastructure.Email;
@@ -34,6 +36,7 @@ public static class DependencyInjection
         AddPersistence( services, configuration );
         AddAuthentication( services, configuration );
         AddAuthorization( services );
+        AddCaching( services, configuration );
 
         return services;
     }
@@ -49,16 +52,16 @@ public static class DependencyInjection
         services.Configure<KeycloakOptions>( configuration.GetSection( "Keycloak" ) );
         services.AddTransient<AdminAuthorizationDelegatingHandler>();
         services.AddHttpClient<IAuthenticationService, AuthenticationService>( ( sp, httpClient ) =>
-        {
-            var keycloakOptions = sp.GetRequiredService<IOptions<KeycloakOptions>>().Value;
+            {
+                KeycloakOptions keycloakOptions = sp.GetRequiredService<IOptions<KeycloakOptions>>().Value;
 
-            httpClient.BaseAddress = new Uri( keycloakOptions.AdminUrl );
-        } )
-        .AddHttpMessageHandler<AdminAuthorizationDelegatingHandler>();
+                httpClient.BaseAddress = new Uri( keycloakOptions.AdminUrl );
+            } )
+            .AddHttpMessageHandler<AdminAuthorizationDelegatingHandler>();
 
         services.AddHttpClient<IJwtService, JwtService>( ( sp, httpClient ) =>
         {
-            var keycloakOptions = sp.GetRequiredService<IOptions<KeycloakOptions>>().Value;
+            KeycloakOptions keycloakOptions = sp.GetRequiredService<IOptions<KeycloakOptions>>().Value;
 
             httpClient.BaseAddress = new Uri( keycloakOptions.TokenUrl );
         } );
@@ -70,8 +73,8 @@ public static class DependencyInjection
 
     private static void AddPersistence( IServiceCollection services, IConfiguration configuration )
     {
-        var connectionString = configuration.GetConnectionString( "Database" ) ??
-                    throw new ArgumentNullException( nameof( configuration ) );
+        string connectionString = configuration.GetConnectionString( "Database" ) ??
+                                  throw new ArgumentNullException( nameof( configuration ) );
 
         services.AddDbContext<ApplicationDbContext>( options =>
         {
@@ -98,5 +101,15 @@ public static class DependencyInjection
         services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
         services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+    }
+
+    private static void AddCaching( IServiceCollection services, IConfiguration configuration )
+    {
+        string connectionString = configuration.GetConnectionString( "Cache" ) ??
+                                  throw new ArgumentNullException( nameof( configuration ) );
+
+        services.AddStackExchangeRedisCache( options => options.Configuration = connectionString );
+
+        services.AddSingleton<ICacheService, CacheService>();
     }
 }

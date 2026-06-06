@@ -1,6 +1,7 @@
 ﻿using Bookify.Application.Users.GetLoggedInUser;
 using Bookify.Application.Users.LoginUser;
 using Bookify.Application.Users.RegisterUser;
+using Bookify.Domain.Abstractions;
 using Bookify.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -23,9 +24,9 @@ public class UsersController : ControllerBase
     [HasPermission( Permissions.UsersRead )]
     public async Task<IActionResult> GetLoggedInUser( CancellationToken cancellationToken )
     {
-        var query = new GetLoggedInUserQuery();
+        GetLoggedInUserQuery query = new();
 
-        var result = await _sender.Send( query, cancellationToken );
+        Result<UserResponse> result = await _sender.Send( query, cancellationToken );
 
         return Ok( result.Value );
     }
@@ -36,13 +37,13 @@ public class UsersController : ControllerBase
         RegisterUserRequest request,
         CancellationToken cancellationToken )
     {
-        var command = new RegisterUserCommand(
+        RegisterUserCommand command = new(
             request.Email,
             request.FirstName,
             request.LastName,
             request.Password );
 
-        var result = await _sender.Send( command, cancellationToken );
+        Result<Guid> result = await _sender.Send( command, cancellationToken );
         if ( result.IsFailure )
         {
             return BadRequest( result.Error );
@@ -57,11 +58,11 @@ public class UsersController : ControllerBase
         LogInUserRequest request,
         CancellationToken cancellationToken )
     {
-        var command = new LogInUserCommand(
+        LogInUserCommand command = new(
             request.Email,
             request.Password );
 
-        var result = await _sender.Send( command, cancellationToken );
+        Result<AccessTokenResponse> result = await _sender.Send( command, cancellationToken );
         if ( result.IsFailure )
         {
             return BadRequest( result.Error );

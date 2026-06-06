@@ -1,5 +1,6 @@
 ﻿using Bookify.Application.Bookings.GetBooking;
 using Bookify.Application.Bookings.ReserveBooking;
+using Bookify.Domain.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,9 +22,9 @@ public class BookingsController : ControllerBase
     [HttpGet( "{id:guid}" )]
     public async Task<IActionResult> GetBooking( Guid id, CancellationToken cancellationToken )
     {
-        var query = new GetBookingQuery( id );
+        GetBookingQuery query = new( id );
 
-        var result = await _sender.Send( query, cancellationToken );
+        Result<BookingResponse> result = await _sender.Send( query, cancellationToken );
 
         return result.IsSuccess
             ? Ok( result.Value )
@@ -35,18 +36,21 @@ public class BookingsController : ControllerBase
         ReserveBookingRequest request,
         CancellationToken cancellationToken )
     {
-        var command = new ReserveBookingCommand(
+        ReserveBookingCommand command = new(
             request.ApartmentId,
             request.UserId,
             request.Start,
             request.End );
 
-        var result = await _sender.Send( command, cancellationToken );
+        Result<Guid> result = await _sender.Send( command, cancellationToken );
         if ( result.IsFailure )
         {
             return BadRequest( result.Error );
         }
 
-        return CreatedAtAction( nameof( GetBooking ), new { id = result.Value }, result.Value );
+        return CreatedAtAction( nameof( GetBooking ), new
+        {
+            id = result.Value
+        }, result.Value );
     }
 }

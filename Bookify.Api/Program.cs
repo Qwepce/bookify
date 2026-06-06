@@ -3,7 +3,7 @@ using Bookify.Application;
 using Bookify.Infrastructure;
 using Serilog;
 
-var builder = WebApplication.CreateBuilder( args );
+WebApplicationBuilder builder = WebApplication.CreateBuilder( args );
 
 builder.Host.UseSerilog( ( context, configuration ) =>
 {
@@ -17,7 +17,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure( builder.Configuration );
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 if ( app.Environment.IsDevelopment() )
 {

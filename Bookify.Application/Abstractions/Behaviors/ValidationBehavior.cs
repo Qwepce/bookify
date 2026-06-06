@@ -26,9 +26,9 @@ internal class ValidationBehavior<TRequest, TResponse>
             return await next( cancellationToken );
         }
 
-        var context = new ValidationContext<TRequest>( request );
+        ValidationContext<TRequest> context = new( request );
 
-        var validationErrors = _validators
+        List<ValidationError> validationErrors = _validators
             .Select( validator => validator.Validate( request ) )
             .Where( validationResult => validationResult.Errors.Any() )
             .SelectMany( validationResult => validationResult.Errors )

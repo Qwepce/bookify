@@ -24,9 +24,9 @@ public class ExceptionHandlingMiddleware
         {
             _logger.LogError( exception, "Exception occured: {Message}", exception.Message );
 
-            var exceptionDetails = GetExceptionDetails( exception );
+            ExceptionDetails exceptionDetails = GetExceptionDetails( exception );
 
-            var problemDetails = new ProblemDetails
+            ProblemDetails problemDetails = new()
             {
                 Status = exceptionDetails.Status,
                 Type = exceptionDetails.Type,
@@ -34,10 +34,7 @@ public class ExceptionHandlingMiddleware
                 Detail = exceptionDetails.Details
             };
 
-            if ( exceptionDetails.Errors is not null )
-            {
-                problemDetails.Extensions[ "errors" ] = exceptionDetails.Errors;
-            }
+            problemDetails.Extensions[ "errors" ] = exceptionDetails.Errors;
 
             context.Response.StatusCode = exceptionDetails.Status;
 

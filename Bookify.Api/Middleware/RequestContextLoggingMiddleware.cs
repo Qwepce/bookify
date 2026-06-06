@@ -1,4 +1,5 @@
-﻿using Serilog.Context;
+﻿using Microsoft.Extensions.Primitives;
+using Serilog.Context;
 
 namespace Bookify.Api.Middleware;
 
@@ -23,7 +24,7 @@ public class RequestContextLoggingMiddleware
 
     private static string GetCorrelationId( HttpContext httpContext )
     {
-        httpContext.Request.Headers.TryGetValue( CorrelationIdHeaderName, out var correlationId );
+        httpContext.Request.Headers.TryGetValue( CorrelationIdHeaderName, out StringValues correlationId );
 
         return correlationId.FirstOrDefault() ?? httpContext.TraceIdentifier;
     }
