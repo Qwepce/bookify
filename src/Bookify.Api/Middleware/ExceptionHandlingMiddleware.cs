@@ -53,11 +53,4 @@ public class ExceptionHandlingMiddleware( RequestDelegate next, ILogger<Exceptio
                 null )
         };
     }
-
-    internal record ExceptionDetails(
-        int Status,
-        string Type,
-        string Title,
-        string Details,
-        IEnumerable<object?> Errors );
 }

@@ -1,10 +1,11 @@
 ﻿using Bookify.Domain.Users;
 using Bookify.Domain.Users.Events;
+using Bookify.UnitTests.Infrastructure;
 using FluentAssertions;
 
-namespace Bookify.Domain.UnitTests.Users;
+namespace Bookify.UnitTests.Users;
 
-public class UserTests
+public class UserTests : BaseTest
 {
     [Fact]
     public void Create_Should_SetPropertyValues()
@@ -26,14 +27,18 @@ public class UserTests
         User user = User.Create( UserData.FirstName, UserData.LastName, UserData.Email );
 
         // Assert
-        UserCreatedDomainEvent? domainEvent = user.GetDomainEvents().OfType<UserCreatedDomainEvent>().SingleOrDefault();
-        domainEvent?.UserId.Should().Be( user.Id );
+        UserCreatedDomainEvent domainEvent = AssertDomainEventWasPublished<UserCreatedDomainEvent>( user );
+        domainEvent.UserId.Should().Be( user.Id );
     }
-}
 
-internal static class UserData
-{
-    public static readonly FirstName FirstName = new( "John" );
-    public static readonly LastName LastName = new( "Doe" );
-    public static readonly Email Email = new( "johndoe@example.test" );
+    [Fact]
+    public void Create_Should_AddRegisteredRoleToUser()
+    {
+        // Act
+        User user = User.Create( UserData.FirstName, UserData.LastName, UserData.Email );
+
+        // Assert
+        user.Roles.Should().NotBeEmpty();
+        user.Roles.Should().Contain( Role.Registered );
+    }
 }

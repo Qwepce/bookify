@@ -68,9 +68,9 @@ public sealed class Booking : Entity
         DateTime utcNow,
         PricingService pricingService )
     {
-        var pricingDetails = pricingService.CalculatePrice( apartment, duration );
+        PricingDetails pricingDetails = pricingService.CalculatePrice( apartment, duration );
 
-        var booking = new Booking(
+        Booking booking = new(
             Guid.CreateVersion7(),
             apartment.Id,
             userId,
@@ -141,7 +141,7 @@ public sealed class Booking : Entity
             return Result.Failure( BookingErrors.NotConfirmed );
         }
 
-        var currentDate = DateOnly.FromDateTime( utcNow );
+        DateOnly currentDate = DateOnly.FromDateTime( utcNow );
 
         if ( currentDate > Duration.Start )
         {
