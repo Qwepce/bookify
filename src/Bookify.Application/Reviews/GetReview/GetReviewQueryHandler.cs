@@ -7,7 +7,7 @@ using Dapper;
 
 namespace Bookify.Application.Reviews.GetReview;
 
-public class GetReviewQueryHandler( ISqlConnectionFactory sqlConnectionFactory )
+internal sealed class GetReviewQueryHandler( ISqlConnectionFactory sqlConnectionFactory )
     : IQueryHandler<GetReviewQuery, ReviewResponse>
 {
     public async Task<Result<ReviewResponse>> Handle( GetReviewQuery request, CancellationToken cancellationToken )

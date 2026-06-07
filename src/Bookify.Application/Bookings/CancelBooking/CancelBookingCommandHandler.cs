@@ -5,7 +5,7 @@ using Bookify.Domain.Bookings;
 
 namespace Bookify.Application.Bookings.CancelBooking;
 
-public class CancelBookingCommandHandler(
+internal sealed class CancelBookingCommandHandler(
     IBookingRepository bookingRepository,
     IDateTimeProvider dateTimeProvider,
     IUnitOfWork unitOfWork )

@@ -8,7 +8,6 @@ using Bookify.Application;
 using Bookify.Infrastructure;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.OpenApi;
 using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder( args );
@@ -78,3 +77,5 @@ app.MapHealthChecks( "health", new HealthCheckOptions
 } );
 
 app.Run();
+
+public partial class Program;

@@ -7,7 +7,7 @@ using Bookify.Domain.Reviews;
 
 namespace Bookify.Application.Reviews.AddReview;
 
-public class AddReviewCommandHandler(
+internal sealed class AddReviewCommandHandler(
     IBookingRepository bookingRepository,
     IReviewRepository reviewRepository,
     IDateTimeProvider dateTimeProvider,
